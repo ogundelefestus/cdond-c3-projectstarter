@@ -131,9 +131,9 @@ jobs:
          keys: [backend-build]
       # Your job code here
       - run:
-         name: Scan Frontend
+         name: Scan Backend
          command: |
-            cd frontend
+            cd backend
             npm install
             npm audit fix --audit-level=critical
 
