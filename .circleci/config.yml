@@ -90,7 +90,7 @@ jobs:
     steps:
       - checkout
       # Restore from cache
-      -restore_cache:
+      - restore_cache:
          keys: [backend-build]
       # Your job code here
       - run:
