@@ -15,9 +15,9 @@ commands:
           name: Destroy environments
           when: on_fail
           command: |
-            aws s3 rm "s3://udapeople-${CIRCLE_WORKFLOW_ID:0:5}" --recursive
-            aws cloudformation delete-stack --stack-name backend-${CIRCLE_WORKFLOW_ID:0:5}
-            aws cloudformation delete-stack --stack-name frontend-${CIRCLE_WORKFLOW_ID:0:5}
+            aws s3 rm "s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --recursive
+            aws cloudformation delete-stack --stack-name backend-${CIRCLE_WORKFLOW_ID:0:7}
+            aws cloudformation delete-stack --stack-name frontend-${CIRCLE_WORKFLOW_ID:0:7}
            # aws s3 rm "s3://${OldBucketID}" --recursive 
             
   revert-migrations:
@@ -149,8 +149,8 @@ jobs:
             aws cloudformation deploy \
             --template-file .circleci/files/backend.yml \
             --tags project=backend-infra \
-            --stack-name "backend-${CIRCLE_WORKFLOW_ID:0:5}" \
-            --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:5}"  
+            --stack-name "backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+            --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  
               
       - run:
           name: Ensure front-end infrastructure exist
@@ -158,14 +158,14 @@ jobs:
             aws cloudformation deploy \
             --template-file .circleci/files/frontend.yml \
             --tags project=frontend-infra \
-            --stack-name "frontend-${CIRCLE_WORKFLOW_ID:0:5}" \
-            --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:5}"  
+            --stack-name "frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
+            --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  
               
       - run:
           name: Add back-end ip to ansible inventory
           command: |
             aws ec2 describe-instances \
-            --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:5}" \
+            --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
             --output text >> .circleci/ansible/inventory.txt
             cat .circleci/ansible/inventory.txt
@@ -291,7 +291,7 @@ jobs:
           command: |
             # your code here
             export BACKEND_IP=$(aws ec2 describe-instances \
-            --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:5}" \
+            --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
             --output text)
             export API_URL="http://${BACKEND_IP}:3030"
@@ -306,7 +306,7 @@ jobs:
             npm install
             npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
-            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:5} --recursive
+            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
       - revert-migrations: 
           circle_workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}" 
       - destroy-environment      
@@ -367,7 +367,7 @@ jobs:
           name: Get backend url and backend smoke test.
           command: |
             BACKEND_PUBLIC_IP=$(aws ec2 describe-instances \
-            --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:5}" \
+            --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
             --output text)
             export API_URL=http://${BACKEND_PUBLIC_IP}:3030
@@ -381,7 +381,7 @@ jobs:
       - run:
           name: Frontend smoke test.
           command: |
-            URL=http://udapeople-${CIRCLE_WORKFLOW_ID:0:5}.s3-website.${AWS_DEFAULT_REGION}.amazonaws.com
+            URL=http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website.${AWS_DEFAULT_REGION}.amazonaws.com
             echo ${URL}
             if curl -s ${URL} | grep "Welcome"
             then
@@ -408,7 +408,7 @@ jobs:
             aws cloudformation deploy \
             --template-file .circleci/files/cloudfront.yml \
             --stack-name InitialStack \
-            --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:5}" \
+            --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
             --tags project=udapeople
           #  export OldWorkflowID=$(aws cloudformation \
           #  list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
@@ -446,7 +446,7 @@ jobs:
             export OldWorkflowID=$(cat ~/OldWorkflowID.txt)
             echo OldWorkflowID: "${OldWorkflowID}"
             echo $OldWorkflowID
-            if [[ "${CIRCLE_WORKFLOW_ID:0:5}" != "${OldWorkflowID}" ]]
+            if [[ "${CIRCLE_WORKFLOW_ID:0:7}" != "${OldWorkflowID}" ]]
             then
               echo "--------------------Delete Confirmed------------------------------"
               aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
